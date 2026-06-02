@@ -360,6 +360,14 @@ async function salvarMovimentacao(event) {
         return;
     }
 
+    if (dados.origem === 'Estoque' && dados.destino !== 'Estoque') {
+        const produto = await obterSuprimento(dados.produto_id);
+        if (produto && dados.quantidade > produto.quantidade) {
+            showToast('Quantidade solicitada maior que o estoque disponível.', 'erro');
+            return;
+        }
+    }
+
     try {
         await criarMovimentacao(dados);
         showToast('Movimentação registrada com sucesso!');
