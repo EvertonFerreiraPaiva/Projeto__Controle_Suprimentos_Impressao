@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Controle de Suprimentos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- ============================================================ -->
+    <!-- TOPO                                                         -->
+    <!-- ============================================================ -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-xl shadow">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h1 class="text-lg font-bold text-gray-800 hidden sm:block">Controle de Suprimentos</h1>
+                </div>
+
+                <button id="btn-sair"
+                    class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ============================================================ -->
+        <!-- CARDS DE INDICADORES                                         -->
+        <!-- ============================================================ -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Suprimentos</p>
+                <p id="card-suprimentos" class="text-3xl font-bold text-gray-800 mt-1">—</p>
+                <p class="text-xs text-gray-400 mt-1">Total cadastrados</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Em Estoque</p>
+                <p id="card-estoque" class="text-3xl font-bold text-gray-800 mt-1">—</p>
+                <p class="text-xs text-gray-400 mt-1">Unidades em estoque</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Movimentações</p>
+                <p id="card-movimentacoes" class="text-3xl font-bold text-gray-800 mt-1">—</p>
+                <p class="text-xs text-gray-400 mt-1">Total registradas</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Menor Estoque</p>
+                <p id="card-menor-estoque" class="text-3xl font-bold text-gray-800 mt-1">—</p>
+                <p class="text-xs text-gray-400 mt-1">Suprimento crítico</p>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- GRÁFICO                                                     -->
+        <!-- ============================================================ -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-8">
+            <h2 class="text-base font-bold text-gray-800 mb-1">Movimentações por Destino</h2>
+            <p class="text-xs text-gray-400 mb-4">Quantidade de movimentações agrupadas por setor de destino</p>
+            <div class="relative" style="height: 260px;">
+                <canvas id="grafico-movimentacoes"></canvas>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- GESTÃO DE SUPRIMENTOS                                       -->
+        <!-- ============================================================ -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-8">
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <h2 class="text-base font-bold text-gray-800">Suprimentos</h2>
+                <button id="btn-novo-suprimento"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Novo Suprimento
+                </button>
+            </div>
+
+            <!-- Tabela de suprimentos -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
+                            <th class="pb-3 pr-4 font-semibold">Código</th>
+                            <th class="pb-3 pr-4 font-semibold">Descrição</th>
+                            <th class="pb-3 pr-4 font-semibold">Tipo</th>
+                            <th class="pb-3 pr-4 font-semibold">Fabricante</th>
+                            <th class="pb-3 pr-4 font-semibold">Qtd</th>
+                            <th class="pb-3 pr-4 font-semibold">Localização</th>
+                            <th class="pb-3 font-semibold text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-suprimentos">
+                        <tr>
+                            <td colspan="7" class="py-8 text-center text-gray-400 text-sm">
+                                Nenhum suprimento cadastrado.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- GESTÃO DE MOVIMENTAÇÕES                                     -->
+        <!-- ============================================================ -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-8">
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <h2 class="text-base font-bold text-gray-800">Movimentações</h2>
+                <button id="btn-nova-movimentacao"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nova Movimentação
+                </button>
+            </div>
+
+            <!-- Tabela de movimentações -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
+                            <th class="pb-3 pr-4 font-semibold">Suprimento</th>
+                            <th class="pb-3 pr-4 font-semibold">Origem</th>
+                            <th class="pb-3 pr-4 font-semibold">Destino</th>
+                            <th class="pb-3 pr-4 font-semibold">Qtd</th>
+                            <th class="pb-3 pr-4 font-semibold">Observação</th>
+                            <th class="pb-3 pr-4 font-semibold">Data</th>
+                            <th class="pb-3 font-semibold text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-movimentacoes">
+                        <tr>
+                            <td colspan="7" class="py-8 text-center text-gray-400 text-sm">
+                                Nenhuma movimentação registrada.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: NOVO SUPRIMENTO                                       -->
+    <!-- ============================================================ -->
+    <div id="modal-suprimento" class="fixed inset-0 z-50 hidden bg-black/40 flex items-center justify-center p-4">
+
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Novo Suprimento</h3>
+                <button id="btn-fechar-modal-suprimento" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="form-suprimento" novalidate>
+
+                <div class="mb-4">
+                    <label for="suprimento-codigo" class="block text-sm font-medium text-gray-700 mb-1">Código</label>
+                    <input type="text" id="suprimento-codigo" name="codigo" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        placeholder="Ex: 56F4H00">
+                </div>
+
+                <div class="mb-4">
+                    <label for="suprimento-descricao" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                    <input type="text" id="suprimento-descricao" name="descricao" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        placeholder="Ex: Toner Lexmark Preto">
+                </div>
+
+                <div class="mb-4">
+                    <label for="suprimento-tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                    <select id="suprimento-tipo" name="tipo" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white">
+                        <option value="">Selecione</option>
+                        <option value="Toner">Toner</option>
+                        <option value="Fusor">Fusor</option>
+                        <option value="Kit de Imagem">Kit de Imagem</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="suprimento-fabricante" class="block text-sm font-medium text-gray-700 mb-1">Fabricante</label>
+                    <input type="text" id="suprimento-fabricante" name="fabricante" value="Lexmark" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-gray-50"
+                        placeholder="Lexmark">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="suprimento-quantidade" class="block text-sm font-medium text-gray-700 mb-1">Quantidade</label>
+                        <input type="number" id="suprimento-quantidade" name="quantidade" min="0" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label for="suprimento-localizacao" class="block text-sm font-medium text-gray-700 mb-1">Localização</label>
+                        <input type="text" id="suprimento-localizacao" name="localizacao"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                            placeholder="Ex: Prateleira A1">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" id="btn-cancelar-suprimento"
+                        class="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: NOVA MOVIMENTAÇÃO                                     -->
+    <!-- ============================================================ -->
+    <div id="modal-movimentacao" class="fixed inset-0 z-50 hidden bg-black/40 flex items-center justify-center p-4">
+
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Nova Movimentação</h3>
+                <button id="btn-fechar-modal-movimentacao" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="form-movimentacao" novalidate>
+
+                <div class="mb-4">
+                    <label for="movimentacao-produto" class="block text-sm font-medium text-gray-700 mb-1">Suprimento</label>
+                    <select id="movimentacao-produto" name="produto_id" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white">
+                        <option value="">Selecione um suprimento</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="movimentacao-origem" class="block text-sm font-medium text-gray-700 mb-1">Origem</label>
+                        <input type="text" id="movimentacao-origem" name="origem" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                            placeholder="Ex: Compras">
+                    </div>
+                    <div>
+                        <label for="movimentacao-destino" class="block text-sm font-medium text-gray-700 mb-1">Destino</label>
+                        <input type="text" id="movimentacao-destino" name="destino" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                            placeholder="Ex: Estoque">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="movimentacao-quantidade" class="block text-sm font-medium text-gray-700 mb-1">Quantidade</label>
+                    <input type="number" id="movimentacao-quantidade" name="quantidade" min="1" required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                </div>
+
+                <div class="mb-4">
+                    <label for="movimentacao-observacao" class="block text-sm font-medium text-gray-700 mb-1">Observação</label>
+                    <textarea id="movimentacao-observacao" name="observacao" rows="2"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
+                        placeholder="Observação opcional"></textarea>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" id="btn-cancelar-movimentacao"
+                        class="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/suprimentos.js"></script>
+    <script src="assets/js/movimentacoes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>
